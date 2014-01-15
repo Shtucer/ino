@@ -28,7 +28,10 @@ class Serial(Command):
         parser.usage = "%(prog)s [-h] [-p PORT] [-b RATE] [-- ARGS]"
 
     def run(self, args):
-        print("Try to find picocom")
+        """
+        Shtucer: 15.01.2014
+        Do you have picocom?
+        """
         serial_port = args.serial_port or self.e.guess_serial_port()
         try:
             serial_monitor = self.e.find_tool('serial', ['picocom'], human_name='Serial monitor (picocom)')
@@ -39,5 +42,17 @@ class Serial(Command):
                 '-l'
             ] + args.remainder)
         except Exception:
-            print("Who's care?")
+            """
+            Shtucer: 15.01.2014
+            Who's care? We are have PySerial alredy
+            Try subprocess serial.tools.miniterm
+            looks ugly, but keyboard interrupt works fine
 
+            Use Ctrl+] to exit
+            """
+            subprocess.call([
+                'python',
+                '-m', 'serial.tools.miniterm',
+                '-b', str(args.baud_rate),
+                serial_port,
+            ])
