@@ -29,10 +29,9 @@ class Serial(Command):
 
     def run(self, args):
         print("Try to find picocom")
+        serial_port = args.serial_port or self.e.guess_serial_port()
         try:
             serial_monitor = self.e.find_tool('serial', ['picocom'], human_name='Serial monitor (picocom)')
-            serial_port = args.serial_port or self.e.guess_serial_port()
-
             subprocess.call([
                 serial_monitor,
                 serial_port,
@@ -41,3 +40,4 @@ class Serial(Command):
             ] + args.remainder)
         except Exception:
             print("Who's care?")
+

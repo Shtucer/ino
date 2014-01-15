@@ -231,13 +231,21 @@ class Environment(dict):
             return ['/dev/ttyACM*', '/dev/ttyUSB*']
         if system == 'Darwin':
             return ['/dev/tty.usbmodem*', '/dev/tty.usbserial*']
+        if system == 'Windows':
+            return ['COM*']
+        '''
         raise NotImplementedError("Not implemented for Windows")
-
+        '''
     def list_serial_ports(self):
         ports = []
-        for p in self.serial_port_patterns():
-            matches = glob(p)
-            ports.extend(matches)
+        if platform.system() == 'Windows':
+            from serial.tools.list_ports import comports
+            for p in comports():
+                ports.append(p[0])
+        else:
+            for p in self.serial_port_patterns():
+                matches = glob(p)
+                ports.extend(matches)
         return ports
 
     def guess_serial_port(self):
