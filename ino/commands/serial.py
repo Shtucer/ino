@@ -53,6 +53,6 @@ class Serial(Command):
             subprocess.call([
                 'python',
                 '-m', 'serial.tools.miniterm',
-                '-b', str(args.baud_rate),
                 serial_port,
-            ])
+                str(args.baud_rate),
+            ] + args.remainder)

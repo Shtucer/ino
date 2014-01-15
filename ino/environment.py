@@ -1,5 +1,6 @@
 # -*- coding: utf-8; -*-
 
+from __future__ import print_function
 import sys
 import os.path
 import itertools
@@ -8,7 +9,6 @@ import pickle
 import platform
 import hashlib
 import re
-
 try:
     from collections import OrderedDict
 except ImportError:
