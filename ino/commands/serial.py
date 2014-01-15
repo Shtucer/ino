@@ -20,7 +20,7 @@ class Serial(Command):
         super(Serial, self).setup_arg_parser(parser)
         parser.add_argument('-p', '--serial-port', metavar='PORT',
                             help='Serial port to communicate with\nTry to guess if not specified')
-        parser.add_argument('-b', '--baud-rate', metavar='RATE', type=int, default=9600, 
+        parser.add_argument('-b', '--baud-rate', metavar='RATE', type=int, default=9600,
                             help='Communication baud rate, should match value set in Serial.begin() on Arduino')
         parser.add_argument('remainder', nargs='*', metavar='ARGS',
                             help='Extra picocom args that are passed as is')
@@ -28,12 +28,16 @@ class Serial(Command):
         parser.usage = "%(prog)s [-h] [-p PORT] [-b RATE] [-- ARGS]"
 
     def run(self, args):
-        serial_monitor = self.e.find_tool('serial', ['picocom'], human_name='Serial monitor (picocom)')
-        serial_port = args.serial_port or self.e.guess_serial_port()
+        print("Try to find picocom")
+        try:
+            serial_monitor = self.e.find_tool('serial', ['picocom'], human_name='Serial monitor (picocom)')
+            serial_port = args.serial_port or self.e.guess_serial_port()
 
-        subprocess.call([
-            serial_monitor,
-            serial_port,
-            '-b', str(args.baud_rate),
-            '-l'
-        ] + args.remainder)
+            subprocess.call([
+                serial_monitor,
+                serial_port,
+                '-b', str(args.baud_rate),
+                '-l'
+            ] + args.remainder)
+        except Exception:
+            print("Who's care?")

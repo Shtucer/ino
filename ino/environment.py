@@ -25,7 +25,7 @@ from ino.exc import Abort
 
 class Version(namedtuple('Version', 'major minor build')):
 
-    regex = re.compile(ur'^([^:]+:)?(\d+(\.\d+(\.\d+)?)?)')
+    regex = re.compile(r'^([^:]+:)?(\d+(\.\d+(\.\d+)?)?)')
 
     @classmethod
     def parse(cls, s):
@@ -47,7 +47,7 @@ class Version(namedtuple('Version', 'major minor build')):
             # looks like old 0022 or something like that
             return cls(0, int(v), 0)
 
-        parts = map(int, v.split('.'))
+        parts = list(map(int, v.split('.')))
 
         # append nulls if they were not explicit
         while len(parts) < 3:
@@ -88,7 +88,7 @@ class Environment(dict):
         if not os.path.isdir(self.output_dir):
             return
         with open(self.dump_filepath, 'wb') as f:
-            pickle.dump(self.items(), f)
+            pickle.dump(list(self.items()), f)
 
     def load(self):
         if not os.path.exists(self.dump_filepath):
@@ -97,8 +97,8 @@ class Environment(dict):
             try:
                 self.update(pickle.load(f))
             except:
-                print colorize('Environment dump exists (%s), but failed to load' % 
-                               self.dump_filepath, 'yellow')
+                print(colorize('Environment dump exists (%s), but failed to load' %
+                               self.dump_filepath, 'yellow'))
 
     @property
     def dump_filepath(self):
@@ -131,19 +131,19 @@ class Environment(dict):
 
         # expand env variables in `places` and split on colons
         places = itertools.chain.from_iterable(os.path.expandvars(p).split(os.pathsep) for p in places)
-        places = map(os.path.expanduser, places)
+        places = list(map(os.path.expanduser, places))
 
-        print 'Searching for', human_name, '...',
+        print('Searching for', human_name, '...', end=' ')
         for p in places:
             for i in items:
                 path = os.path.join(p, i)
                 if os.path.exists(path):
                     result = path if join else p
-                    print colorize(result, 'green')
+                    print(colorize(result, 'green'))
                     self[key] = result
                     return result
 
-        print colorize('FAILED', 'red')
+        print(colorize('FAILED', 'red'))
         raise Abort("%s not found. Searched in following places: %s" %
                     (human_name, ''.join(['\n  - ' + p for p in places])))
 
@@ -185,7 +185,7 @@ class Environment(dict):
         if 'board_models' in self:
             return self['board_models']
 
-        boards_txt = self.find_arduino_file('boards.txt', ['hardware', 'arduino'], 
+        boards_txt = self.find_arduino_file('boards.txt', ['hardware', 'arduino'],
                                             human_name='Board description file (boards.txt)')
 
         self['board_models'] = BoardModels()
@@ -210,19 +210,19 @@ class Environment(dict):
 
     def board_model(self, key):
         return self.board_models()[key]
-    
+
     def add_board_model_arg(self, parser):
         help = '\n'.join([
             "Arduino board model (default: %(default)s)",
-            "For a full list of supported models run:", 
+            "For a full list of supported models run:",
             "`ino list-models'"
         ])
 
-        parser.add_argument('-m', '--board-model', metavar='MODEL', 
+        parser.add_argument('-m', '--board-model', metavar='MODEL',
                             default=self.default_board_model, help=help)
 
     def add_arduino_dist_arg(self, parser):
-        parser.add_argument('-d', '--arduino-dist', metavar='PATH', 
+        parser.add_argument('-d', '--arduino-dist', metavar='PATH',
                             help='Path to Arduino distribution, e.g. ~/Downloads/arduino-0022.\nTry to guess if not specified')
 
     def serial_port_patterns(self):
@@ -241,15 +241,15 @@ class Environment(dict):
         return ports
 
     def guess_serial_port(self):
-        print 'Guessing serial port ...',
+        print('Guessing serial port ...', end=' ')
 
         ports = self.list_serial_ports()
         if ports:
             result = ports[0]
-            print colorize(result, 'yellow')
+            print(colorize(result, 'yellow'))
             return result
 
-        print colorize('FAILED', 'red')
+        print(colorize('FAILED', 'red'))
         raise Abort("No device matching following was found: %s" %
                     (''.join(['\n  - ' + p for p in self.serial_port_patterns()])))
 
@@ -262,15 +262,15 @@ class Environment(dict):
         if board_model:
             all_models = self.board_models()
             if board_model not in all_models:
-                print "Supported Arduino board models are:"
-                print all_models.format()
+                print("Supported Arduino board models are:")
+                print(all_models.format())
                 raise Abort('%s is not a valid board model' % board_model)
 
         # Build artifacts for each Arduino distribution / Board model
         # pair should go to a separate subdirectory
         build_dirname = board_model or self.default_board_model
         if arduino_dist:
-            hash = hashlib.md5(arduino_dist).hexdigest()[:8]
+            hash = hashlib.md5(arduino_dist.encode("utf-8")).hexdigest()[:8]
             build_dirname = '%s-%s' % (build_dirname, hash)
 
         self['build_dir'] = os.path.join(self.output_dir, build_dirname)
@@ -282,16 +282,16 @@ class Environment(dict):
 
         if 'arduino_lib_version' not in self:
             with open(self['version.txt']) as f:
-                print 'Detecting Arduino software version ... ',
+                print('Detecting Arduino software version ... ', end=' ')
                 v_string = f.read().strip()
                 v = Version.parse(v_string)
                 self['arduino_lib_version'] = v
-                print colorize("%s (%s)" % (v, v_string), 'green')
+                print(colorize("%s (%s)" % (v, v_string), 'green'))
 
         return self['arduino_lib_version']
 
 
 class BoardModels(OrderedDict):
     def format(self):
-        map = [(key, val['name']) for key, val in self.iteritems()]
+        map = [(key, val['name']) for key, val in self.items()]
         return format_available_options(map, head_width=12, default=self.default)

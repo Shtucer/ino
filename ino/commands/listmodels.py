@@ -22,4 +22,4 @@ class ListModels(Command):
         self.e.add_arduino_dist_arg(parser)
 
     def run(self, args):
-        print self.e.board_models().format()
+        print(self.e.board_models().format())

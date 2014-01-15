@@ -24,7 +24,7 @@ class Init(Command):
 
     def setup_arg_parser(self, parser):
         super(Init, self).setup_arg_parser(parser)
-        parser.add_argument('-t', '--template', default=self.default_template, 
+        parser.add_argument('-t', '--template', default=self.default_template,
                             help='Project template to use')
 
         parser.epilog = "Available project templates:\n\n"
@@ -37,7 +37,7 @@ class Init(Command):
                 description = ''
             template_items.append((os.path.basename(tdir), description))
 
-        parser.epilog += format_available_options(template_items, head_width=12, 
+        parser.epilog += format_available_options(template_items, head_width=12,
                                                   default=self.default_template)
 
     def run(self, args):
@@ -79,11 +79,11 @@ def copytree(src, dst, symlinks=False, ignore=None):
                 copytree(srcname, dstname, symlinks, ignore)
             else:
                 shutil.copy2(srcname, dstname)
-        except (IOError, os.error), why:
+        except (IOError, os.error) as why:
             errors.append((srcname, dstname, str(why)))
         # catch the Error from the recursive copytree so that we can
         # continue with other files
-        except shutil.Error, err:
+        except shutil.Error as err:
             errors.extend(err.args[0])
     if errors:
         raise shutil.Error(errors)

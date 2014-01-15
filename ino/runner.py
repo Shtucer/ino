@@ -75,9 +75,9 @@ def main():
 
         args.func(args)
     except Abort as exc:
-        print colorize(str(exc), 'red')
+        print(colorize(str(exc), 'red'))
         sys.exit(1)
     except KeyboardInterrupt:
-        print 'Terminated by user'
+        print('Terminated by user')
     finally:
         e.dump()

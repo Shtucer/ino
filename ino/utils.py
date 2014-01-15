@@ -24,13 +24,13 @@ class SpaceList(list):
 
 class FileMap(OrderedDict):
     def sources(self):
-        return SpaceList(self.iterkeys())
+        return SpaceList(iter(self.keys()))
 
     def targets(self):
-        return SpaceList(self.itervalues())
+        return SpaceList(iter(self.values()))
 
     def iterpaths(self):
-        for source, target in self.iteritems():
+        for source, target in self.items():
             yield (source.path, target.path)
 
     def target_paths(self):
@@ -40,7 +40,7 @@ class FileMap(OrderedDict):
 def list_subdirs(dirname, recursive=False, exclude=[]):
     entries = [e for e in os.listdir(dirname) if e not in exclude and not e.startswith('.')]
     paths = [os.path.join(dirname, e) for e in entries]
-    dirs = filter(os.path.isdir, paths)
+    dirs = list(filter(os.path.isdir, paths))
     if recursive:
         sub = itertools.chain.from_iterable(
             list_subdirs(d, recursive=True, exclude=exclude) for d in dirs)

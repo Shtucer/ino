@@ -235,7 +235,7 @@ class Build(Command):
         used_libs = set()
         with open(output_filepath) as f:
             for line in f:
-                for lib, regex in regexes.iteritems():
+                for lib, regex in regexes.items():
                     if regex.search(line) and lib != dir:
                         used_libs.add(lib)
 

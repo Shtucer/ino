@@ -53,7 +53,7 @@ def glob(dir, *patterns, **kwargs):
 
 @filter
 def pjoin(base, *parts):
-    return os.path.join(str(base), *map(str, parts))
+    return os.path.join(str(base), *list(map(str, parts)))
 
 
 def xname(filepath, basename_fmt):
@@ -63,7 +63,7 @@ def xname(filepath, basename_fmt):
 
 
 @filter
-def objname(filepath):
+def objname():
     return xname(filepath, '%s.o')
 
 
@@ -84,14 +84,14 @@ relative_to = filter(os.path.relpath)
 
 @filter
 def filemap(sources, target_dir, rename_rule):
-    return FileMap((source, GlobFile(xname(source, rename_rule), target_dir)) 
+    return FileMap((source, GlobFile(xname(source, rename_rule), target_dir))
                    for source in sources)
 
 @filter
 def libmap(source_dirs, target_dir):
     return FileMap((
-        source_dir, 
-        GlobFile(libname(basename(source_dir)), 
+        source_dir,
+        GlobFile(libname(basename(source_dir)),
                  pjoin(target_dir, basename(source_dir))))
         for source_dir in source_dirs)
 
@@ -111,7 +111,7 @@ def colorize(s, color):
     }
 
     return ''.join([
-        '\033[', ccodes[color], 'm', 
+        '\033[', ccodes[color], 'm',
         s,
         '\033[0m'
     ])
