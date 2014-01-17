@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import platform
 from setuptools import setup
 
 install_requires = open("requirements.txt").read().split('\n')
@@ -26,7 +27,7 @@ setup(
     keywords="arduino build system",
     url='http://inotool.org',
     packages=['ino', 'ino.commands'],
-    scripts=['bin/ino'],
+    scripts=['bin/ino.bat' if platform.system() == 'Windows' else 'bin/ino'],
     package_data={'ino': ino_package_data},
     install_requires=install_requires,
     classifiers=[

@@ -84,3 +84,6 @@ def main():
         print('Terminated by user')
     finally:
         e.dump()
+
+#if __name__ == "__main__":
+#	main()
