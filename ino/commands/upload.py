@@ -41,14 +41,14 @@ class Upload(Command):
     def discover(self):
         if platform.system() != "Windows":
             self.e.find_tool('stty', ['stty'])
-
+        # TODO: avrdude and avrdude.conf not only part of Arduino IDE
         if platform.system() == 'Linux':
             self.e.find_arduino_tool('avrdude', ['hardware', 'tools'])
             conf_places = self.e.arduino_dist_places(['hardware', 'tools'])
             conf_places.append('/etc/avrdude') # fallback to system-wide conf on Fedora
             self.e.find_file('avrdude.conf', places=conf_places)
         else:
-            self.e.find_arduino_tool('avrdude', ['hardware', 'tools', 'avr', 'bin'])
+            self.e.find_arduino_tool('avrdude', ['hardware', 'tools', 'avr', 'bin'], ['avrdude.exe', 'avrdude'])
             self.e.find_arduino_file('avrdude.conf', ['hardware', 'tools', 'avr', 'etc'])
 
     def run(self, args):
@@ -62,10 +62,10 @@ class Upload(Command):
             # try v2 first and fail
             protocol = 'stk500v1'
 
-        if not os.path.exists(port):
-            raise Abort("%s doesn't exist. Is Arduino connected?" % port)
 
         if platform.system() != "Windows":
+            if not os.path.exists(port):
+                raise Abort("%s doesn't exist. Is Arduino connected?" % port)
             # send a hangup signal when the last process closes the tty
             file_switch = '-f' if platform.system() == 'Darwin' else '-F'
             ret = subprocess.call([self.e['stty'], file_switch, port, 'hupcl'])
