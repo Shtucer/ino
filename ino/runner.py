@@ -57,6 +57,9 @@ def main():
     try:
         run_anywhere = "init clean list-models serial"
 
+        if current_command == "upload" and args.firmware:
+            run_anywhere += " upload"
+
         in_project_dir = os.path.isdir(e.src_dir)
         if not in_project_dir and current_command not in run_anywhere:
             raise Abort("No project found in this directory.")
@@ -65,7 +68,7 @@ def main():
 
         if current_command not in run_anywhere:
             # For valid projects create .build & lib
-            if not os.path.isdir(e.build_dir):                
+            if not os.path.isdir(e.build_dir):
                 os.makedirs(e.build_dir)
 
             if not os.path.isdir(e.lib_dir):

@@ -32,14 +32,18 @@ class Upload(Command):
         parser.add_argument('-p', '--serial-port', metavar='PORT',
                             help='Serial port to upload firmware to\nTry to guess if not specified')
 
+        parser.add_argument('-f', '--firmware', metavar='FIRMWARE',
+                            help='Specify path to firmware for uploading.')
+
         self.e.add_board_model_arg(parser)
         self.e.add_arduino_dist_arg(parser)
 
     def discover(self):
-        self.e.find_tool('stty', ['stty'])
+        if platform.system() != "Windows":
+            self.e.find_tool('stty', ['stty'])
+
         if platform.system() == 'Linux':
             self.e.find_arduino_tool('avrdude', ['hardware', 'tools'])
-
             conf_places = self.e.arduino_dist_places(['hardware', 'tools'])
             conf_places.append('/etc/avrdude') # fallback to system-wide conf on Fedora
             self.e.find_file('avrdude.conf', places=conf_places)
@@ -61,11 +65,12 @@ class Upload(Command):
         if not os.path.exists(port):
             raise Abort("%s doesn't exist. Is Arduino connected?" % port)
 
-        # send a hangup signal when the last process closes the tty
-        file_switch = '-f' if platform.system() == 'Darwin' else '-F'
-        ret = subprocess.call([self.e['stty'], file_switch, port, 'hupcl'])
-        if ret:
-            raise Abort("stty failed")
+        if platform.system() != "Windows":
+            # send a hangup signal when the last process closes the tty
+            file_switch = '-f' if platform.system() == 'Darwin' else '-F'
+            ret = subprocess.call([self.e['stty'], file_switch, port, 'hupcl'])
+            if ret:
+                raise Abort("stty failed")
 
         # pulse on DTR
         try:
@@ -130,5 +135,5 @@ class Upload(Command):
             '-c', protocol,
             '-b', board['upload']['speed'],
             '-D',
-            '-U', 'flash:w:%s:i' % self.e['hex_path'],
+            '-U', 'flash:w:%s:i' % (args.firmware or self.e['hex_path']),
         ])
